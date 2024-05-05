@@ -185,7 +185,7 @@ def main() -> None:
     # for a list of supported languages.
     language_code = "id-ID"  # a BCP-47 language tag
 
-    credentials = service_account.Credentials.from_service_account_file('./gcloud_speech_to_text_apikey.json')
+    credentials = service_account.Credentials.from_service_account_file('./gcloud_speech_apikey.json')
     client = speech.SpeechClient(credentials=credentials)
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
