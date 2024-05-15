@@ -22,7 +22,7 @@
 					]
 				},
 				"url": {
-					"raw": "http://0.0.0.0:8080/predict",
+					"raw": "http://0.0.0.0:8080/predictaudio",
 					"protocol": "http",
 					"host": [
 						"0",
@@ -32,7 +32,7 @@
 					],
 					"port": "8080",
 					"path": [
-						"predict"
+						"predictaudio"
 					]
 				}
 			},
@@ -80,8 +80,32 @@
 		{
 			"name": "predict_video",
 			"request": {
-				"method": "GET",
-				"header": []
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "video",
+							"type": "file",
+							"src": "/C:/Users/Yodya Mahesa/Documents/GitHub/tubes_DSP_vid_sentiment/Tugas2/speech/Anime.mp4"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://0.0.0.0:8080/predictvideo",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8080",
+					"path": [
+						"predictvideo"
+					]
+				}
 			},
 			"response": []
 		}
