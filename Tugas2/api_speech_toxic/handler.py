@@ -74,7 +74,8 @@ def convert_mp3(video_path):
     video_clip = VideoFileClip(video_path)
     audio_clip = video_clip.audio
     audio_clip.write_audiofile("audio.mp3")
-
+    audio_clip.close()
+    video_clip.close()
 
 # Function predict threat dan hate pada teks
 def predict(teks):
