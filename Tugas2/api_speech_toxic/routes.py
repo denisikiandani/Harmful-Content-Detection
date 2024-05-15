@@ -17,7 +17,7 @@ def setup_routes(app):
                 # Memproses teks
                 output = predict(teks)
                 # Mengembalikan output
-                return jsonify(output)
+                return output
             except Exception as error:
                 print(error)
                 return jsonify({"status": "error"})
@@ -33,7 +33,7 @@ def setup_routes(app):
                 # Memproses audio
                 output = predict_audio(audio)
                 # Mengembalikan output
-                return jsonify(output)
+                return output
             except Exception as error:
                 print(error)
                 return jsonify({"status": "error"})
@@ -49,7 +49,7 @@ def setup_routes(app):
                 # Memproses video
                 output = predict_video(video)
                 # Mengembalikan output
-                return jsonify(output)
+                return output
             except Exception as error:
                 print(error)
                 return jsonify({"status": "error"})
