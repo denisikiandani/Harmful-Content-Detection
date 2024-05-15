@@ -1,0 +1,89 @@
+{
+	"info": {
+		"_postman_id": "dbd2facb-2ee8-4b6e-a940-ddb8c5a28f00",
+		"name": "Data Science Programming",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26894095"
+	},
+	"item": [
+		{
+			"name": "predict",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "teks",
+							"value": "['Hello world']",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://0.0.0.0:8080/predict",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8080",
+					"path": [
+						"predict"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "predict_audio",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "audio",
+							"type": "file",
+							"src": "/C:/Users/Yodya Mahesa/Documents/GitHub/tubes_DSP_vid_sentiment/Tugas2/speech/Anime.mp3"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://0.0.0.0:8080/predictaudio",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "8080",
+					"path": [
+						"predictaudio"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "predict_video",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
