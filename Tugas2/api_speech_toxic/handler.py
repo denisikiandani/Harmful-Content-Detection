@@ -19,7 +19,7 @@ from moviepy.editor import VideoFileClip
 model = tf.keras.models.load_model('../load_model_integration/toxic-v1.h5')
 
 # Lables Predict
-labels = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
+labels = ['toxic', 'sangat_toxic', 'cabul', 'ancaman', 'menyinggung', 'penghinaan']
 # toxic == toxic
 # sever_toxic == toxic_parah
 # obscene == cabul
