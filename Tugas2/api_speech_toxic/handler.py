@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from tensorflow.keras.layers import TextVectorization  # tokenization|
 import pickle
+import ast
 
 # Import Library
 from google.cloud.speech_v2 import SpeechClient
@@ -79,8 +80,13 @@ def convert_mp3(video_path):
 
 # Function predict threat dan hate pada teks
 def predict(teks):
-    # Input data teks
-    input_data = teks
+    # Jika masih dalam bentuk String
+    if type(teks) == str:
+        # Input data teks
+        input_data = ast.literal_eval(teks)
+    # Jika sudah dalam bentuk List
+    else:
+        input_data = teks
     # Membuat vektor setiap teks masukan dalam daftar
     vectorized_texts = [vectorizer(text) for text in input_data]
     # Pad urutan dengan panjang yang sama
