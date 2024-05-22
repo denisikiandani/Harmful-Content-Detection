@@ -183,8 +183,8 @@ def main() -> None:
     """Transcribe speech from audio file."""
     # See http://g.co/cloud/speech/docs/languages
     # for a list of supported languages.
-    # language_code = "id-ID"  # a BCP-47 language tag
-    language_code = "en-US"  # a BCP-47 language tag
+    language_code = "id-ID"  # a BCP-47 language tag
+    # language_code = "en-US"  # a BCP-47 language tag
 
     credentials = service_account.Credentials.from_service_account_file('gcloud_apikey.json')
     client = speech.SpeechClient(credentials=credentials)
@@ -192,7 +192,7 @@ def main() -> None:
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=RATE,
         language_code=language_code,
-        model="long-latest"
+        model="latest_long"
     )
 
     streaming_config = speech.StreamingRecognitionConfig(
@@ -210,7 +210,6 @@ def main() -> None:
 
         # Now, put the transcription responses to use.
         listen_print_loop(responses)
-
 
 if __name__ == "__main__":
     main()

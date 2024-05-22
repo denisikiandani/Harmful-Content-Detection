@@ -67,3 +67,7 @@ def transcribe_streaming_v2(project_id, api_key, audio_file):
 
     print(list_transkrip)
     return list_transkrip
+
+transcribe_streaming_v2(project_id="data-science-programming-ti24",
+                        api_key="./gcloud_apikey.json",
+                        audio_file="./Donald Trump.mp3")
