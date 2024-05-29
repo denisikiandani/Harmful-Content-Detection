@@ -192,7 +192,7 @@ def main() -> None:
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=RATE,
         language_code=language_code,
-        model="long-latest"
+        model='latest_long'
     )
 
     streaming_config = speech.StreamingRecognitionConfig(
