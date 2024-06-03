@@ -1,6 +1,6 @@
 # Import library
 from flask import request, jsonify  #
-from handler import predict, predict_audio, predict_video
+from handler import predict, predict_audio, predict_video, predict_text
 
 
 # Function setupRoutes:
@@ -15,7 +15,8 @@ def setup_routes(app):
                 # Mengambil teks dari request
                 teks = request.form.get('teks')
                 # Memproses teks
-                output = predict(teks)
+                # output = predict(teks)
+                output = predict_text(teks)
                 # Mengembalikan output
                 return output
             except Exception as error:

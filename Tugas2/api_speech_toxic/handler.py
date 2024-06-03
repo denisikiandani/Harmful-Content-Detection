@@ -1,12 +1,21 @@
 # Import Library
+import os
 import io
 import json
-import os
-import tensorflow as tf
+import pickle
 import numpy as np
 import pandas as pd
-from tensorflow.keras.layers import TextVectorization  # tokenization|
-import pickle
+
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+import tensorflow as tf
+from tensorflow.keras.layers import TextVectorization # type: ignore #tokenization|
 import ast
 
 # Import Library
@@ -16,22 +25,26 @@ from google.oauth2 import service_account
 from moviepy.editor import VideoFileClip
 
 # Load Model
-model = tf.keras.models.load_model('../load_model_integration/toxic-v1.h5')
+model = tf.keras.models.load_model('../model_data/toxic-v2.h5')
 
 # Lables Predict
-labels = ['toxic', 'sangat_toxic', 'cabul', 'ancaman', 'menyinggung', 'penghinaan']
+labels = ['toxic', 'sangat_toxic', 'cabul', 'ancaman', 'penghinaan', 'rasis']
 # toxic == toxic
 # sever_toxic == toxic_parah
 # obscene == cabul
 # threat == ancaman
-# insult == menyinggung
-# indentity_hate == benci personal
+# insult == penghinaan 
+# indentity_hate == rasis/benci personal(gender, ras, etnis, agama, orientasi seksual, dll)
 
 # Import Vectorizer
-with open('vectorizer_config.pkl', 'rb') as f:
+with open('../model_data/vectorizer_config_v2.pkl', 'rb') as f:
     vectorizer_config = pickle.load(f)
-with open('vectorizer_vocab.pkl', 'rb') as f:
+with open('../model_data/vectorizer_vocab_v2.pkl', 'rb') as f:
     vectorizer_vocab = pickle.load(f)
+
+# Inisialisasi stopwords dan lemmatizer
+stop_words = set(stopwords.words('english'))
+lemmatizer = WordNetLemmatizer()
 
 # Set Vectorizer
 vectorizer = TextVectorization.from_config(vectorizer_config)
@@ -78,6 +91,70 @@ def convert_mp3(video_path):
     audio_clip.close()
     video_clip.close()
 
+
+
+# Function untuk menampilkan wordcloud
+def plot_cloud(wordcloud):
+    plt.figure(figsize=[10, 8])
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.show()
+
+def generate_word_cloud(text):
+    wordcloud = WordCloud(width = 800, height = 800, 
+                background_color ='white', 
+                stopwords = stop_words, 
+                min_font_size = 10).generate(text)
+    return wordcloud.to_image()
+
+def normalize_text(text):
+    text = text.lower()  # Ubah menjadi huruf kecil
+    text = re.sub(r"i'm", "i am", text)
+    text = re.sub(r"don't", "do not", text)
+    text = re.sub(r"can't", "cannot", text)
+    text = re.sub(r"won't", "will not", text)
+    text = re.sub(r"it's", "it is", text)
+    text = re.sub(r"that's", "that is", text)
+    text = re.sub(r"there's", "there is", text)
+    text = re.sub(r"what's", "what is", text)
+    text = re.sub(r"who's", "who is", text)
+    text = re.sub(r"isn't", "is not", text)
+    text = re.sub(r"wasn't", "was not", text)
+    text = re.sub(r"weren't", "were not", text)
+    text = re.sub(r"didn't", "did not", text)
+    text = re.sub(r"haven't", "have not", text)
+    text = re.sub(r"hasn't", "has not", text)
+    text = re.sub(r"shouldn't", "should not", text)
+    text = re.sub(r"couldn't", "could not", text)
+    text = re.sub(r"wouldn't", "would not", text)
+    text = re.sub(r"ain't", "are not", text)
+    text = re.sub(r"ive", "i have", text)
+    text = re.sub(r"ok", "okay", text)
+    text = re.sub(r"they're", "they are", text)
+    return text
+
+def clean_text(text):
+    text = re.sub(r'@[A-Za-z0-9_]+','',text) # Hapus mention
+    text = re.sub(r'#\w+','',text) # Hapus hashtag
+    text = re.sub(r'RT[\s]+','',text) # Hapus retweet
+    text = re.sub(r'https?://\S+','',text) # Hapus url
+    text = re.sub(r'\r\n', ' ', text)  # Mengubah \r\n menjadi spasi
+    text = re.sub(r'\r|\n', ' ', text) # Hapus karakter escape seperti \r dan \n
+    text = re.sub(r'[^A-Za-z0-9 ]','',text) # Hapus karakter non alpha numeric
+    text = re.sub(r'\d+', '', text) # hapus angka
+    text = re.sub(r'\s+',' ',text).strip() # Hapus spasi berlebih
+
+    return text
+
+def preprocess_text(text):
+    text = normalize_text(text)  # Normalisasi teks
+    text = clean_text(text)  # Bersihkan teks
+    
+    # stopwords dan lemmatize
+    text = ' '.join([lemmatizer.lemmatize(word) for word in text.split() if word not in stop_words])
+    return text
+
+
 # Function predict threat dan hate pada teks
 def predict(teks):
     # Jika masih dalam bentuk String
@@ -110,6 +187,40 @@ def predict(teks):
         output_buffer.write(f"Total {label} predictions: {total}\n")
         output_buffer.write(f"Index Kalimat yang terdeteksi {label}: {label_index[label]}\n")
         output_buffer.write("\n")
+    # Mendapatkan semua output sebagai string
+    output_string = output_buffer.getvalue()
+    # Jangan lupa untuk menutup buffer setelah selesai
+    output_buffer.close()
+    return output_string
+
+
+# Function predict threat dan hate pada teks
+def predict_text(teks):
+    input_data = teks
+    clean_input = preprocess_text(input_data)
+    
+    # Membuat vektor setiap teks masukan dalam daftar
+    vectorized_texts = vectorizer([clean_input])
+    # # Pad sequence dengan panjang yg sa,a
+    padded_texts = tf.keras.preprocessing.sequence.pad_sequences(vectorized_texts, maxlen=1800)
+    # Melakukan prediksi
+    predictions = model.predict(padded_texts)
+    binary_predictions = (predictions > 0.5).astype(int)
+    # Membuat buffer untuk menyimpan output
+    output_buffer = io.StringIO()
+    
+    # Menampilkan teks input
+    output_buffer.write("Teks Input:\n")
+    output_buffer.write(f"{input_data}\n\n")
+
+    # Menampilkan hasil prediksi untuk setiap label yang bernilai 1
+    for i, (label, prediction_value) in enumerate(zip(labels, predictions[0])):
+        binary_value = binary_predictions[0][i]
+        if binary_value == 1:
+            output_buffer.write(f"Label: {label}\n")
+            output_buffer.write(f"Akurasi Prediksi: {prediction_value}\n")
+            output_buffer.write("\n")
+    
     # Mendapatkan semua output sebagai string
     output_string = output_buffer.getvalue()
     # Jangan lupa untuk menutup buffer setelah selesai
