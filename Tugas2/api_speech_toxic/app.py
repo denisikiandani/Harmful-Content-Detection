@@ -29,8 +29,8 @@ def predict_video(video):
 
 # Fungsi utama aplikasi Streamlit
 def main():
-    st.title("Deteksi Threat dan Hate Speech")
-
+    st.title("Sistem Pendeteksi Konten Berbahaya secara Otomatis")
+    st.write("Label Deteksi: Toxic, Sangat Toxic, Cabul, Ancaman, Rasis")
     # Pilihan untuk memilih jenis input (teks, audio, atau video)
     option =  st.radio("Pilih jenis file:", ("Teks", "Audio", "Video"))
 
@@ -39,6 +39,7 @@ def main():
         teks = st.text_area("Masukkan teks:")
         # Tombol untuk memprediksi teks
         if st.button("Prediksi Teks"):
+            st.header("Hasil Deteksi Text")
             # Memanggil fungsi predict_text untuk melakukan prediksi
             output = predict_text(teks)
             # Menampilkan output prediksi
@@ -53,6 +54,7 @@ def main():
             st.audio(audio_file, format='audio/mp3')
             # Tombol untuk memprediksi audio
             if st.button("Prediksi Audio"):
+                st.header("Hasil Deteksi Audio")
                 # Memanggil fungsi predict_audio untuk melakukan prediksi
                 output = predict_audio(audio_file)
                 # Menampilkan output prediksi
@@ -66,6 +68,7 @@ def main():
             st.video(video_file)
             # Tombol untuk memprediksi video
             if st.button("Prediksi Video"):
+                st.header("Hasil Deteksi Konten Video")
                 # Memanggil fungsi predict_video untuk melakukan prediksi
                 output = predict_video(video_file)
                 # Menampilkan output prediksi
