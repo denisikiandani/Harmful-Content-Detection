@@ -100,7 +100,7 @@ def plot_cloud(wordcloud):
     plt.axis('off')
     plt.show()
 
-def generate_word_cloud(text):
+def generate_wordcloud(text):
     wordcloud = WordCloud(width = 800, height = 800, 
                 background_color ='white', 
                 stopwords = stop_words, 
