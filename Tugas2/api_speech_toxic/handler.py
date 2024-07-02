@@ -24,6 +24,10 @@ from google.cloud.speech_v2.types import cloud_speech
 from google.oauth2 import service_account
 from moviepy.editor import VideoFileClip
 
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS # type: ignore
+from werkzeug.utils import secure_filename
+
 # Load Model
 model = tf.keras.models.load_model('../model_data/toxic-v2.h5')
 
@@ -91,21 +95,6 @@ def convert_mp3(video_path):
     audio_clip.close()
     video_clip.close()
 
-
-
-# Function untuk menampilkan wordcloud
-def plot_cloud(wordcloud):
-    plt.figure(figsize=[10, 8])
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis('off')
-    plt.show()
-
-def generate_wordcloud(text):
-    wordcloud = WordCloud(width = 800, height = 800, 
-                background_color ='white', 
-                stopwords = stop_words, 
-                min_font_size = 10).generate(text)
-    return wordcloud.to_image()
 
 def normalize_text(text):
     text = text.lower()  # Ubah menjadi huruf kecil
@@ -219,7 +208,7 @@ def predict_text(teks):
         if binary_value == 1:
             output_buffer.write(f"Label: {label}\n")
             output_buffer.write(f"Akurasi Prediksi: {prediction_value}\n")
-            output_buffer.write("\n")
+            output_buffer.write("\n\n")
     
     # Mendapatkan semua output sebagai string
     output_string = output_buffer.getvalue()
@@ -241,6 +230,7 @@ def predict_video(video):
     for hasil in transkrip.results:
         teks = f'{hasil.alternatives[0].transcript}'
         list_hasil_transkrip.append(teks)
+    full_transcript = ' '.join(list_hasil_transkrip)
     # Prediksi threat dan hate speech
     output = predict(list_hasil_transkrip)
     # Menghapus file video dan audio setelah prediksi
@@ -250,8 +240,8 @@ def predict_video(video):
             os.remove(file_name)
         else:
             pass
-    # Return
-    return output
+    # Return output dan full transcript
+    return output, full_transcript
 
 
 # Function predict threat dan hate pada audio
@@ -265,6 +255,7 @@ def predict_audio(audio):
     for hasil in transkrip.results:
         teks = f'{hasil.alternatives[0].transcript}'
         list_hasil_transkrip.append(teks)
+    full_transcript = ' '.join(list_hasil_transkrip)
     # Prediksi threat dan hate speech
     output = predict(list_hasil_transkrip)
     # Menghapus file video dan audio setelah prediksi
@@ -274,5 +265,42 @@ def predict_audio(audio):
             os.remove(file_name)
         else:
             pass
-    # Return
-    return output
+    # Return output dan full transcript
+    return output, full_transcript
+
+def generate_word_cloud(text):
+    # Menggunakan matplotlib dan wordcloud untuk membuat word cloud
+    # wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
+    wordcloud = WordCloud(width=3000, height=2000,random_state = 3,background_color = 'black',colormap = 'Blues_r',collocations = False,).generate(text)
+
+    # Simpan word cloud ke dalam buffer gambar
+    img_buffer = io.BytesIO()
+    plt.figure(figsize=(9, 6), dpi=100)
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.tight_layout(pad=0)
+    plt.savefig(img_buffer, format='png')
+    plt.close()
+    img_buffer.seek(0)  # Kembali ke awal buffer gambar
+    return img_buffer.getvalue()
+
+def parse_transcript_response(response):
+    # Gabungkan teks dari transkrip
+    transcript_text = ' '.join(result.alternatives[0].transcript for result in response.results)
+    return transcript_text
+
+def process_audio_file(audio_file_path):
+    # Ubah audio ke teks
+    transcript = transcribe_file_v2('toxic-389911', audio_file_path)
+    # Parsing response
+    transcript_text = parse_transcript_response(transcript)
+    return transcript_text
+
+def process_video_file(video_file_path):
+    # Ubah video ke audio
+    convert_mp3(video_file_path)
+    # Proses file audio
+    audio_file_path = 'audio.mp3'
+    transcript_text = process_audio_file(audio_file_path)
+    return transcript_text
+
